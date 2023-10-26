@@ -1,0 +1,53 @@
+1a) depth _??__
+1b) depth 2
+1c) depth 1
+
+2a) test acc should be lower than val acc
+2b) __??__
+
+3) a, b, c(?)
+
+4) Question: Are we building the decision tree around existing, predefined points? or should the dec. tree be able to work for any arbitrary points/? Can t be determined by inserting points (ex x <= (x1 + x3)/2 ). Can t be calculated using (x < x^5 - xi)? Is it legal to run calculations on the points, then plug those output values into decision tree as static t values?
+
+Ex. points in R are x1 = -1, x2 = 1. Decision tree becomes x<0/x>0
+	any 2 points by 1NN can be converted to decision tree, but this tree is generated for this case specifically... should we detail a method that works for every case or the approach for a case?
+
+4b)a, b, 
+for b: can t be a function of x1 and x2 or is it constant? this is still a subset of R1 (R2 -> R). Or do calculations have to be before the tree and then input value into tree.
+
+_________
+
+1a) 4/14 wrong
+1b) Does the new test point count itself as a nearest neighbor?
+
+2a)false
+2b) a
+2c) no- this will "taint" the test data, and when it is time to run tests we will not have a real glimpse into what the true error rate might be. The purpose of the test set is to evaluate your model's performance on unseen data, but using the test data for fine tuning inherently makes it no longer be unseen data.
+3) bcd -is it asking for tiebreaking on the new point specifically? Does tiebreak have to be replicable?
+4) a, b, d
+5a) student 3
+5b) 944
+5c) a,b
+6a) 2
+6b) y = ?
+6c) y = +
+6d) y = +
+6e) Euclidean distance will NOT do better- 9 dimensions, each value will either be 0 or 1. Therefore, the distance along each dimension will only be 0 or 1. When plugging this into distance formula, you will end up with 0, 1, or -1 for each distance. overall distance will simply be sqrt(n) where n is the number of pixels that are difference. So, the euclidean distane will be the sqrt of the hamming distance which will have no effect when comparing distances.
+_____________________
+
+1. False
+2. uhhhhhhhhhh
+3. M- one parameter for each dimension (ex. w1, w2, ... wM)
+4. uhhhhhhhh b (18, 30, 63, 61)
+5. a, d(?)
+6. C
+7. a, b
+8a) 3.8730
+8b) 0.9233
+1.4932
+1.7602
+1.8818
+0.9233
+1.2011
+
+8c) 17.5958  

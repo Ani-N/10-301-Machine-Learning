@@ -1,0 +1,8 @@
+#For names as separate object:
+train_data_arr = np.genfromtxt(args.train_input, delimiter="\t", skip_header=1)
+with open(args.train_input) as f:
+    first_line = f.readline()
+    names = first_line.split()
+
+#for small_train:
+#no_chest_pain = train_data_arr[train_data_arr[:,0] == 0]
