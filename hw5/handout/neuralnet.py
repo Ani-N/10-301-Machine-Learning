@@ -3,7 +3,7 @@ neuralnet.py
 
 What you need to do:
 - Complete random_init
-- Implement SoftMaxCrossEntropy methods
+- Implement SoftMaxCrossEntropy method
 - Implement Sigmoid methods
 - Implement Linear methods
 - Implement NN methods
@@ -207,6 +207,7 @@ class SoftMaxCrossEntropy:
     def backward(self, y: int, y_hat: np.ndarray) -> np.ndarray:
         """
         Compute gradient of loss w.r.t. ** softmax input **.
+        #dl/db
         Note that here instead of calculating the gradient w.r.t. the softmax
         probabilities, we are directly computing gradient w.r.t. the softmax
         input.
@@ -218,11 +219,12 @@ class SoftMaxCrossEntropy:
         :param y_hat: predicted softmax probability with shape (num_classes,)
         :return: gradient with shape (num_classes,)
         """
-        # TODO: implement using the formula you derived in the written
+        # TODOne: implement using the formula you derived in the written
 
-        gradient = np.zeros(y_hat.shape[0])
-        gradient[y] = (1/y_hat[y])
-        return gradient
+        #copy the y_hat array
+        out = np.copy(y_hat)
+        out[y] = (out[y]-1)
+        return out
 
         raise NotImplementedError
 
@@ -232,9 +234,13 @@ class Sigmoid:
         """
         Initialize state for sigmoid activation layer
         """
-        # TODO Initialize any additional values you may need to store for the
+        # TODOne Initialize any additional values you may need to store for the
         #  backward pass here
-        raise NotImplementedError
+        
+        #storing z = sigmoid of x, since dz = sigmoid(1-sigmoid)
+        self.z = None
+
+        #raise NotImplementedError
 
     def forward(self, x: np.ndarray) -> np.ndarray:
         """
@@ -244,18 +250,31 @@ class Sigmoid:
         :return: Output of sigmoid activation function with shape
             (output_size,)
         """
-        # TODO: perform forward pass and save any values you may need for
+        # TODOne: perform forward pass and save any values you may need for
         #  the backward pass
+
+        e = np.exp(x)
+        self.z = e / (1 + e)
+        return self.z
+    
         raise NotImplementedError
 
     def backward(self, dz: np.ndarray) -> np.ndarray:
         """
         :param dz: partial derivative of loss with respect to output of
             sigmoid activation
+            #dl/dz
         :return: partial derivative of loss with respect to input of
             sigmoid activation
+            #dl/da
         """
-        # TODO: implement
+        # TODOne: implement
+        #initializing np out array
+        out = np.zeros(self.z.shape[0])
+        #calculating derivative element-wise
+        for j in range(out.shape[0]):
+            out[j] = (self.z[j]*(1-self.z[j]))      
+        return (dz*out)
         raise NotImplementedError
 
 
@@ -286,17 +305,24 @@ class Linear:
         #  To be consistent with the formulas you derived in the written and
         #  in order for the unit tests to work correctly,
         #  the first dimension should be the output size
-        raise NotImplementedError
+        self.w = weight_init_fn((output_size, (input_size+1)))
+        ##raise NotImplementedError
 
         # TODO: set the bias terms to zero
-        raise NotImplementedError
+        self.w[:,0] = 0
+        ##raise NotImplementedError
 
         # TODO: Initialize matrix to store gradient with respect to weights
-        raise NotImplementedError
+        self.dw = zero_init((output_size, (input_size+1)))
+        ##raise NotImplementedError
 
         # TODO: Initialize any additional values you may need to store for the
         #  backward pass here
-        raise NotImplementedError
+        self.z = None
+        self.x = None
+        self.x_fold = None
+        self.learning_rate = learning_rate
+        ##raise NotImplementedError
 
     def forward(self, x: np.ndarray) -> np.ndarray:
         """
@@ -314,14 +340,21 @@ class Linear:
         """
         # TODO: perform forward pass and save any values you may need for
         #  the backward pass
+        x_folded = np.append([1], x)
+        self.z = np.matmul(self.w, x_folded)
+        self.x = x
+        self.x_fold = x_folded
+        return self.z
         raise NotImplementedError
 
-    def backward(self, dz: np.ndarray) -> np.ndarray:
+    def backward(self, dz: np.ndarray) -> np.ndarray: #get help!!
         """
         :param dz: partial derivative of loss with respect to output z
             of linear
+            #for  alpha*x = a, dz is equivalent to dl/da
         :return: dx, partial derivative of loss with respect to input x
             of linear
+            #for alpha*x = a, dx is equivalent to dl/dx
         
         Note that this function should set self.dw
             (gradient of loss with respect to weights)
@@ -332,6 +365,17 @@ class Linear:
         your forward() method.
         """
         # TODO: implement
+        #arranging the arrays so that dz is a vertical vector and x is horizontal vector
+        #dl/dw = dl/dz * x^T
+        self.dw = np.matmul(np.array(dz)[np.newaxis].T, np.array(self.x_fold)[np.newaxis])
+
+        #dl/dx = dl/dz * w^T
+        #print(self.w[:,1:].T.shape)
+        #print(np.array(dz)[np.newaxis].T.shape)
+        out = (np.matmul(self.w[:,1:].T, np.array(dz)[np.newaxis].T))
+        #print(out)
+        #print(out.flatten())
+        return out.flatten()
         raise NotImplementedError
 
     def step(self) -> None:
@@ -340,6 +384,7 @@ class Linear:
         set in NN.backward().
         """
         # TODO: implement
+        self.w = self.w- (self.dw * self.learning_rate)
         raise NotImplementedError
 
 
