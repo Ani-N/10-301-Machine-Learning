@@ -299,7 +299,7 @@ class Linear:
         # Initialize learning rate for SGD
         self.lr = learning_rate
 
-        # TODO: Initialize weight matrix for this layer - since we are
+        # TODOne: Initialize weight matrix for this layer - since we are
         #  folding the bias into the weight matrix, be careful about the
         #  shape you pass in.
         #  To be consistent with the formulas you derived in the written and
@@ -308,15 +308,15 @@ class Linear:
         self.w = weight_init_fn((output_size, (input_size+1)))
         ##raise NotImplementedError
 
-        # TODO: set the bias terms to zero
+        # TODOne: set the bias terms to zero
         self.w[:,0] = 0
         ##raise NotImplementedError
 
-        # TODO: Initialize matrix to store gradient with respect to weights
+        # TODOne: Initialize matrix to store gradient with respect to weights
         self.dw = zero_init((output_size, (input_size+1)))
         ##raise NotImplementedError
 
-        # TODO: Initialize any additional values you may need to store for the
+        # TODOne: Initialize any additional values you may need to store for the
         #  backward pass here
         self.z = None
         self.x = None
@@ -338,7 +338,7 @@ class Linear:
         function. Inspect your expressions for backprop to see which values
         should be cached.
         """
-        # TODO: perform forward pass and save any values you may need for
+        # TODOne: perform forward pass and save any values you may need for
         #  the backward pass
         x_folded = np.append([1], x)
         self.z = np.matmul(self.w, x_folded)
@@ -364,7 +364,7 @@ class Linear:
         HINT: You may want to use some of the values you previously cached in 
         your forward() method.
         """
-        # TODO: implement
+        # TODOne: implement
         #arranging the arrays so that dz is a vertical vector and x is horizontal vector
         #dl/dw = dl/dz * x^T
         self.dw = np.matmul(np.array(dz)[np.newaxis].T, np.array(self.x_fold)[np.newaxis])
@@ -383,7 +383,7 @@ class Linear:
         Apply SGD update to weights using self.dw, which should have been 
         set in NN.backward().
         """
-        # TODO: implement
+        # TODOne: implement
         self.w = self.w- (self.dw * self.learning_rate)
         raise NotImplementedError
 
@@ -412,7 +412,12 @@ class NN:
 
         # TODO: initialize modules (see section 9.1.2 of the writeup)
         #  Hint: use the classes you've implemented above!
-        raise NotImplementedError
+        self.linear1 = Linear(self.input_size, self.hidden_size, self.weight_init_fn, learning_rate)
+        self.sigmoid_layer = Sigmoid()
+        self.linear2 = Linear(self.hidden_size, self.output_size, self.weight_init_fn, learning_rate)
+        self.SMCE_layer = SoftMaxCrossEntropy()
+        
+        #raise NotImplementedError
 
     def forward(self, x: np.ndarray, y: int) -> Tuple[np.ndarray, float]:
         """
@@ -426,6 +431,11 @@ class NN:
             loss: the cross_entropy loss for a given example
         """
         # TODO: call forward pass for each layer
+        linear_1_out = self.linear1.forward(x)
+        sigmoid_out = self.sigmoid_layer.forward(linear_1_out)
+        linear_2_out = self.linear2.forward(sigmoid_out)
+        return self.SMCE_layer.forward(linear_2_out, y)
+    
         raise NotImplementedError
 
     def backward(self, y: int, y_hat: np.ndarray) -> None:
@@ -436,7 +446,14 @@ class NN:
         :param y_hat: prediction with shape (num_classes,)
         """
         # TODO: call backward pass for each layer
-        raise NotImplementedError
+        #this equals gradient of linear 2 output
+        g_SMCE_input = self.SMCE_layer.backward(y, y_hat)
+        #g linear 2 input == g sigmoid output
+        g_linear_2_input = self.linear2.backward(g_SMCE_input)
+        #sigmoid input == linear 1 out
+        g_sigmoid_input = self.sigmoid_layer.backward(g_linear_2_input)
+        g_linear_1_input = self.linear1.backward(g_sigmoid_input)
+        #raise NotImplementedError
 
     def step(self):
         """
