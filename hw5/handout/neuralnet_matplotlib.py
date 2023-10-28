@@ -21,6 +21,7 @@ hinting syntax, see https://docs.python.org/3/library/typing.html.
 import numpy as np
 import argparse
 from typing import Callable, List, Tuple
+import matplotlib.pyplot as plt
 
 # This takes care of command line argument parsing for you!
 # To access a specific argument, simply access args.<argument name>.
@@ -384,6 +385,8 @@ class Linear:
         set in NN.backward().
         """
         # TODOne: implement
+        with np.printoptions(threshold=np.inf):
+            print(self.w)
         self.w = self.w- (self.dw * self.learning_rate)
         ##raise NotImplementedError
 
@@ -521,6 +524,8 @@ class NN:
                 y_hat, loss = self.forward(X_shuffled[i], y_shuffled[i])
                 self.backward(y_shuffled[i], y_hat)
                 self.step()
+                if i == 3:
+                    return
             train_mean_entropy.append(self.compute_loss(X_shuffled, y_shuffled))
             test_mean_entropy.append(self.compute_loss(X_test, y_test))
         
@@ -576,15 +581,31 @@ if __name__ == "__main__":
     # (this line of code is already written for you)
     train_losses, test_losses = nn.train(X_tr, y_tr, X_test, y_test, n_epochs)
 
+    print(train_losses[n_epochs-1])
+    print(test_losses[n_epochs-1])
+
     # test model and get predicted labels and errors 
     # (this line of code is written for you)
     train_labels, train_error_rate = nn.test(X_tr, y_tr)
     test_labels, test_error_rate = nn.test(X_test, y_test)
 
+
+    x_axis = (range(n_epochs))
+    fig, ax = plt.subplots()
+    ax.plot(x_axis, train_losses, label= "training CE")
+    ax.plot(x_axis, test_losses, label= "validation CE")
+
+    plt.xlabel("x = epoch number")
+    plt.ylabel("y = avg cross entropy after x epochs")
+    plt.legend(loc="upper right")
+
+
+    plt.show()
+
     # Write predicted label and error into file
     # Note that this assumes train_losses and test_losses are lists of floats
     # containing the per-epoch loss values.
-    with open(out_tr, "w") as f:
+"""     with open(out_tr, "w") as f:
         for label in train_labels:
             f.write(str(label) + "\n")
     with open(out_te, "w") as f:
@@ -601,3 +622,4 @@ if __name__ == "__main__":
                 cur_epoch, cur_te_loss))
         f.write("error(train): {}\n".format(train_error_rate))
         f.write("error(validation): {}\n".format(test_error_rate))
+ """
