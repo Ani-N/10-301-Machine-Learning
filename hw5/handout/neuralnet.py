@@ -385,7 +385,7 @@ class Linear:
         """
         # TODOne: implement
         self.w = self.w- (self.dw * self.learning_rate)
-        raise NotImplementedError
+        ##raise NotImplementedError
 
 
 class NN:
@@ -460,7 +460,9 @@ class NN:
         Apply SGD update to weights.
         """
         # TODO: call step for each relevant layer
-        raise NotImplementedError
+        self.linear1.step()
+        self.linear2.step()
+        ##raise NotImplementedError
 
     def compute_loss(self, X: np.ndarray, y: np.ndarray) -> float:
         """
@@ -471,6 +473,14 @@ class NN:
         """
         # TODO: compute loss over the entire dataset
         #  Hint: reuse your forward function
+        sum = 0
+        for i in range(X.shape[0]):
+            y_hat, loss = self.forward(X[i], y[i])
+            sum += loss
+        
+        #leaving out negation, because the loss is already negated
+        #in the cross_entropy function
+        return sum/(X.shape[0])
         raise NotImplementedError
 
     def train(self, X_tr: np.ndarray, y_tr: np.ndarray,
@@ -487,7 +497,34 @@ class NN:
             train_losses: Training losses *after* each training epoch
             test_losses: Test losses *after* each training epoch
         """
+        """
+        psurdocode:
+        initialize weights (done in constructors)
+
+        for each epoch:
+            shuffle
+            for each X[i], y[i] pair:
+                NN forward
+                NN backward
+                NN step
+            (per epoch still:)
+            calc training loss
+            calc test loss
+        """
         # TODO: train network
+        train_mean_entropy = list()
+        test_mean_entropy = list()
+
+        for epoch in range(n_epochs):
+            X_shuffled, y_shuffled = shuffle(X_tr, y_tr, epoch)
+            for i in range(X_shuffled.shape[0]):
+                y_hat, loss = self.forward(X_shuffled[i], y_shuffled[i])
+                self.backward(y_shuffled[i], y_hat)
+                self.step()
+            train_mean_entropy.append(self.compute_loss(X_shuffled, y_shuffled))
+            test_mean_entropy.append(self.compute_loss(X_shuffled, y_shuffled))
+        
+        return (train_mean_entropy, test_mean_entropy) 
         raise NotImplementedError
 
     def test(self, X: np.ndarray, y: np.ndarray) -> Tuple[np.ndarray, float]:
@@ -500,6 +537,15 @@ class NN:
             error_rate: prediction error rate
         """
         # TODO: make predictions and compute error
+        prediction_labels = np.ndarray(shape=(X.shape[0]), dtype=np.int_)
+        num_errors = 0
+        for i in range(X.shape[0]):
+            y_hat, loss = self.forward(X[i], y[i])
+            prediction_labels[i] = np.argmax(y_hat)
+            if(prediction_labels[i] != y[i]):
+                num_errors += 1
+        
+        return(prediction_labels, (num_errors/X.shape[0]))
         raise NotImplementedError
 
 
